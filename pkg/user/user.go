@@ -34,6 +34,7 @@ type User struct {
 
 func FetchUser(email, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (*User, error) {
 
+	//Fetching user by GET method and email attribute
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"email":{
@@ -43,11 +44,13 @@ func FetchUser(email, tableName string, dynaClient dynamodbiface.DynamoDBAPI) (*
 		TableName: aws.String(tableName),
 	}
 
+	//Storing the output after getting fetched user from database
 	result, err := dynaClient.GetItem(input)
 	if err != nil {
 		return nil, errors.New(ErrorFailedToFetchRecord)
 	}
 
+	//Sending the extracted user to response json by unmarshalling
 	item := new(User)
 	err = dynamodbattribute.UnmarshalMap(result.Item, item)
 	if err != nil {
@@ -124,6 +127,7 @@ func UpdateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient 
 	*User,
 	error,
 ){
+	//Getting json from unmarshaling request body
 	var u User
 	if err := json.Unmarshal([]byte(req.Body), &u); err !=nil {
 		return nil, errors.New(ErrorInvalidEmail)
@@ -139,11 +143,13 @@ func UpdateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient 
 		return nil, errors.New(ErrorFailedToMarshalRecord)
 	}
 
+	//extracting input from table
 	input := &dynamodb.PutItemInput{
 		Item: av,
 		TableName: aws.String(tableName),
 	}
 
+	//Putting input in dynamodb client API
 	_, err = dynaClient.PutItem(input)
 	if err!=nil {
 		return nil, errors.New(ErrorCouldNotDynamoPutItem)
@@ -153,6 +159,7 @@ func UpdateUser(req events.APIGatewayProxyRequest, tableName string, dynaClient 
 
 
 func DeleteUser(req events.APIGatewayProxyRequest, tableName string, dynaClient dynamodbiface.DynamoDBAPI) error{
+	//searching for user by using email as search param
 	email := req.QueryStringParameters["email"]
 	input := &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
@@ -162,6 +169,8 @@ func DeleteUser(req events.APIGatewayProxyRequest, tableName string, dynaClient 
 		},
 		TableName: aws.String(tableName),
 	}
+
+	//Finding input from database and using delete method
 	_, err := dynaClient.DeleteItem(input)
 	if err != nil {
 		return errors.New(ErrorCouldNotDeleteItem)

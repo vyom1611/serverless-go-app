@@ -12,6 +12,7 @@ import (
 	"main.go/pkg/handlers"
 )
 
+//Defining the dynamodb instance API into a variable
 var(
 	dynaClient dynamodbiface.DynamoDBAPI
 )
@@ -31,8 +32,10 @@ func main() {
 	lambda.Start(handler)
 }
 
-const tableName = "LambdaInGoUser"
+//To function on this table in dynamodb
+const tableName = "go-serverless-app"
 
+//Setting up the handler functions by assigning them to http/methods
 func handler(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 		switch req.HTTPMethod{
 		case "GET":
