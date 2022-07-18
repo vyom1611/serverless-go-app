@@ -3,12 +3,12 @@ package main
 import (
 	"os"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
-	"github.com/aws/aws-sdk-go/service/events"
-	"github.com/aws/aws-sdk-go/service/lambda"
 	"main.go/pkg/handlers"
 )
 
@@ -33,7 +33,7 @@ func main() {
 
 const tableName = "LambdaInGoUser"
 
-func handler(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRequest, error) {
+func handler(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 		switch req.HTTPMethod{
 		case "GET":
 			return handlers.GetUser(req, tableName, dynaClient)
@@ -43,8 +43,7 @@ func handler(req events.APIGatewayProxyRequest) (*events.APIGatewayProxyRequest,
 			return handlers.UpdateUser(req, tableName, dynaClient)
 		case "DELETE":
 			return handlers.DeleteUser(req, tableName, dynaClient)
+		default:
+			return handlers.UnhandledMethod()
 		}
-		// default:
-		// 	return handlers.UnhandledMethod()
-	
 }
